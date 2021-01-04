@@ -1,0 +1,6 @@
+column table hierarchy (
+	continent_code nvarchar(100),
+	country_code nvarchar(100),
+	city_code nvarchar(100),
+	city_value decimal(19,2)
+)

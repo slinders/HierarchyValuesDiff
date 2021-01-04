@@ -1,0 +1,29 @@
+{ 
+  "format_version" : 1,
+  "imports" : [
+    {
+      "target_table" : "HIERARCHY",
+      "source_data" : { 
+        "data_type" : "CSV", 
+        "file_name" : "hierarchy_data.csv",
+        "has_header" : true,
+        "type_config" : {
+          "delimiter" : ";",
+          "do_quote"  : false
+        }
+      }
+    },
+    {
+      "target_table" : "FACT",
+      "source_data" : { 
+        "data_type" : "CSV", 
+        "file_name" : "fact_data.csv",
+        "has_header" : true,
+        "type_config" : {
+          "delimiter" : ";",
+          "do_quote"  : false
+        }
+      }
+    }
+    ]
+}

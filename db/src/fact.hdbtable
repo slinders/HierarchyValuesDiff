@@ -1,0 +1,4 @@
+column table fact (
+	city_code nvarchar(100),
+	city_amount decimal(19,2)
+)
