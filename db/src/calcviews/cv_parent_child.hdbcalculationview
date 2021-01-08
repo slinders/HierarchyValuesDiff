@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" xmlns:DataFoundation="http://www.sap.com/ndb/BiModelDataFoundation.ecore" xmlns:Dimension="http://www.sap.com/ndb/BiModelDimension.ecore" id="calcviews::cv_parent_child" applyPrivilegeType="NONE" dataCategory="CUBE" schemaVersion="3.0" outputViewType="Aggregation" cacheInvalidationPeriod="NONE" enforceSqlExecution="false" analyticViewCompatibilityMode="false">
+<descriptions defaultDescription="cv_parent_child"/>
+<localVariables/>
+<variableMappings/>
+<dataSources>
+  <DataSource id="FACT">
+    <resourceUri>FACT</resourceUri>
+  </DataSource>
+  <DataSource id="HIERARCHY_PARENT_CHILD">
+    <resourceUri>HIERARCHY_PARENT_CHILD</resourceUri>
+  </DataSource>
+</dataSources>
+<calculationViews>
+  <calculationView xsi:type="Calculation:JoinView" id="Join_1" cardinality="CN_N" joinType="rightOuter">
+    <viewAttributes>
+      <viewAttribute id="CITY_AMOUNT" aggregationType="sum"/>
+      <viewAttribute id="CITY_CODE"/>
+      <viewAttribute id="CHILD"/>
+      <viewAttribute id="PARENT"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <input node="Fact">
+      <mapping xsi:type="Calculation:AttributeMapping" target="CITY_AMOUNT" source="CITY_AMOUNT"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="CITY_CODE" source="CITY_CODE"/>
+    </input>
+    <input node="Hier">
+      <mapping xsi:type="Calculation:AttributeMapping" target="CHILD" source="CHILD"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="PARENT" source="PARENT"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="CITY_CODE" source="CHILD"/>
+    </input>
+    <joinAttribute name="CITY_CODE"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:ProjectionView" id="Fact">
+    <viewAttributes>
+      <viewAttribute id="CITY_AMOUNT"/>
+    
+      <viewAttribute id="CITY_CODE"/></viewAttributes>
+    <calculatedViewAttributes/>
+    <input node="FACT"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:ProjectionView" id="Hier">
+    <viewAttributes>
+      <viewAttribute id="CHILD"/>
+      <viewAttribute id="PARENT"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <input node="HIERARCHY_PARENT_CHILD"/>
+  </calculationView>
+</calculationViews>
+<logicalModel id="Join_1">
+  <attributes>
+    <attribute id="CITY_CODE" order="2" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="CITY_CODE"/>
+      <keyMapping columnObjectName="Join_1" columnName="CITY_CODE"/>
+    </attribute>
+    <attribute id="CHILD" order="3" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="CHILD"/>
+      <keyMapping columnObjectName="Join_1" columnName="CHILD"/>
+    </attribute>
+    <attribute id="PARENT" order="4" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="PARENT"/>
+      <keyMapping columnObjectName="Join_1" columnName="PARENT"/>
+    </attribute>
+  </attributes>
+  <calculatedAttributes/>
+  <baseMeasures>
+    <measure id="CITY_AMOUNT" order="1" aggregationType="sum" measureType="simple">
+      <descriptions defaultDescription="CITY_AMOUNT"/>
+      <measureMapping columnObjectName="Join_1" columnName="CITY_AMOUNT"/>
+    </measure>
+  </baseMeasures>
+  <calculatedMeasures/>
+  <restrictedMeasures/>
+  <localDimensions>
+    <localDimension id="PARENT_1">
+      <attributeRef xsi:type="DataFoundation:Attribute">CHILD</attributeRef>
+      <attributeRef xsi:type="DataFoundation:Attribute">PARENT</attributeRef>
+      <hierarchies>
+        <hierarchy xsi:type="Dimension:ParentChildHierarchy" id="PARENT_1" aggregateAllNodes="false" orphanedNodesHandling="ROOT_NODES" rootNodeVisibility="ADD_ROOT_NODE_IF_DEFINED" cacheEnabled="true" cycleHandling="BREAKUP" emptyValueIsNull="true">
+          <descriptions defaultDescription=""/>
+          <unassignedMemberProperties mode="FALSE"/>
+          <attributeParentPair attribute="CHILD" parentAttribute="PARENT">
+            <rootNode>
+              <value>ROOT</value>
+            </rootNode>
+          </attributeParentPair>
+        </hierarchy>
+      </hierarchies>
+    </localDimension>
+  </localDimensions>
+</logicalModel>
+<layout>
+  <shapes>
+    <shape expanded="true" modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+      <upperLeftCorner x="40" y="85"/>
+    </shape>
+  
+    <shape expanded="true" modelObjectName="Join_1" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="100" y="197"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape modelObjectName="Fact" modelObjectNameSpace="Join_1" modelObjectType="JoinNodeInput">
+      <upperLeftCorner x="20" y="30"/>
+      <rectangleSize width="100"/>
+    </shape>
+    <shape modelObjectName="Hier" modelObjectNameSpace="Join_1" modelObjectType="JoinNodeInput">
+      <upperLeftCorner x="320" y="30"/>
+      <rectangleSize width="100"/>
+    </shape>
+    <shape expanded="true" modelObjectName="Fact" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="-68" y="357"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape expanded="true" modelObjectName="Hier" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="257" y="367"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+  </shapes>
+</layout>
+</Calculation:scenario>

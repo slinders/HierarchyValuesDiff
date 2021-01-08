@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" xmlns:DataFoundation="http://www.sap.com/ndb/BiModelDataFoundation.ecore" xmlns:Dimension="http://www.sap.com/ndb/BiModelDimension.ecore" id="calcviews::cv_level" applyPrivilegeType="NONE" dataCategory="CUBE" schemaVersion="3.0" outputViewType="Aggregation" cacheInvalidationPeriod="NONE" enforceSqlExecution="false">
+<descriptions defaultDescription="cv_level"/>
+<localVariables/>
+<variableMappings/>
+<dataSources>
+  <DataSource id="FACT">
+    <resourceUri>FACT</resourceUri>
+  </DataSource>
+  <DataSource id="HIERARCHY">
+    <resourceUri>HIERARCHY</resourceUri>
+  </DataSource>
+</dataSources>
+<calculationViews>
+  <calculationView xsi:type="Calculation:JoinView" id="Join_1" cardinality="CN_N" joinType="inner">
+    <viewAttributes>
+      <viewAttribute id="CONTINENT_CODE"/>
+      <viewAttribute id="COUNTRY_CODE"/>
+      <viewAttribute id="CITY_CODE"/>
+      <viewAttribute id="CITY_VALUE" aggregationType="sum"/>
+      <viewAttribute id="CITY_AMOUNT" aggregationType="sum"/>
+      <viewAttribute hidden="true" id="JOIN$CITY_CODE$CITY_CODE"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <input node="Fact">
+      <mapping xsi:type="Calculation:AttributeMapping" target="CITY_AMOUNT" source="CITY_AMOUNT"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$CITY_CODE$CITY_CODE" source="CITY_CODE"/>
+    </input>
+    <input node="Hier">
+      <mapping xsi:type="Calculation:AttributeMapping" target="CONTINENT_CODE" source="CONTINENT_CODE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="COUNTRY_CODE" source="COUNTRY_CODE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="CITY_CODE" source="CITY_CODE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="CITY_VALUE" source="CITY_VALUE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$CITY_CODE$CITY_CODE" source="CITY_CODE"/>
+    </input>
+    <joinAttribute name="JOIN$CITY_CODE$CITY_CODE"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:ProjectionView" id="Fact">
+    <viewAttributes>
+      <viewAttribute id="CITY_AMOUNT"/>
+    
+      <viewAttribute id="CITY_CODE"/></viewAttributes>
+    <calculatedViewAttributes/>
+    <input node="FACT"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:ProjectionView" id="Hier">
+    <viewAttributes>
+      <viewAttribute id="CONTINENT_CODE"/>
+      <viewAttribute id="COUNTRY_CODE"/>
+      <viewAttribute id="CITY_CODE"/>
+      <viewAttribute id="CITY_VALUE"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <input node="HIERARCHY"/>
+  </calculationView>
+</calculationViews>
+<logicalModel id="Join_1">
+  <attributes>
+    <attribute id="CONTINENT_CODE" order="1" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="CONTINENT_CODE"/>
+      <keyMapping columnObjectName="Join_1" columnName="CONTINENT_CODE"/>
+    </attribute>
+    <attribute id="COUNTRY_CODE" order="2" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="COUNTRY_CODE"/>
+      <keyMapping columnObjectName="Join_1" columnName="COUNTRY_CODE"/>
+    </attribute>
+    <attribute id="CITY_CODE" order="3" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="CITY_CODE"/>
+      <keyMapping columnObjectName="Join_1" columnName="CITY_CODE"/>
+    </attribute>
+  </attributes>
+  <calculatedAttributes/>
+  <baseMeasures>
+    <measure id="CITY_VALUE" order="4" aggregationType="sum" measureType="simple">
+      <descriptions defaultDescription="CITY_VALUE"/>
+      <measureMapping columnObjectName="Join_1" columnName="CITY_VALUE"/>
+    </measure>
+    <measure id="CITY_AMOUNT" order="5" aggregationType="sum" measureType="simple">
+      <descriptions defaultDescription="CITY_AMOUNT"/>
+      <measureMapping columnObjectName="Join_1" columnName="CITY_AMOUNT"/>
+    </measure>
+  </baseMeasures>
+  <calculatedMeasures/>
+  <restrictedMeasures/>
+  <localDimensions>
+    <localDimension id="LEVEL_1">
+      <attributeRef xsi:type="DataFoundation:Attribute">CONTINENT_CODE</attributeRef>
+      <attributeRef xsi:type="DataFoundation:Attribute">COUNTRY_CODE</attributeRef>
+      <attributeRef xsi:type="DataFoundation:Attribute">CITY_CODE</attributeRef>
+      <hierarchies>
+        <hierarchy xsi:type="Dimension:LeveledHierarchy" id="LEVEL_1" aggregateAllNodes="true" orphanedNodesHandling="ROOT_NODES" rootNodeVisibility="ADD_ROOT_NODE" withRootNode="true" nodeStyle="LEVEL_NAME_ENFORCED" cacheEnabled="true" cycleHandling="BREAKUP" emptyValueIsNull="true">
+          <descriptions defaultDescription=""/>
+          <unassignedMemberProperties mode="FALSE"/>
+          <levels>
+            <level levelAttribute="CONTINENT_CODE" levelType="MDLEVEL_TYPE_CALCULATED" order="1" orderAttribute="CONTINENT_CODE" sortDirection="ASC"/>
+            <level levelAttribute="COUNTRY_CODE" levelType="MDLEVEL_TYPE_CALCULATED" order="2" orderAttribute="COUNTRY_CODE" sortDirection="ASC"/>
+            <level levelAttribute="CITY_CODE" levelType="MDLEVEL_TYPE_REGULAR" order="3" orderAttribute="CITY_CODE" sortDirection="ASC"/>
+          </levels>
+        </hierarchy>
+      </hierarchies>
+    </localDimension>
+  </localDimensions>
+</logicalModel>
+<layout>
+  <shapes>
+    <shape expanded="true" modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+      <upperLeftCorner x="40" y="85"/>
+    </shape>
+  
+    <shape expanded="true" modelObjectName="Join_1" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="100" y="197"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape modelObjectName="Fact" modelObjectNameSpace="Join_1" modelObjectType="JoinNodeInput">
+      <upperLeftCorner x="20" y="30"/>
+      <rectangleSize width="100"/>
+    </shape>
+    <shape modelObjectName="Hier" modelObjectNameSpace="Join_1" modelObjectType="JoinNodeInput">
+      <upperLeftCorner x="320" y="30"/>
+      <rectangleSize width="100"/>
+    </shape>
+    <shape expanded="true" modelObjectName="Fact" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="-41" y="337"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape expanded="true" modelObjectName="Hier" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="238" y="347"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+  </shapes>
+</layout>
+</Calculation:scenario>
