@@ -4,25 +4,26 @@
 <localVariables/>
 <variableMappings/>
 <dataSources>
-  <DataSource id="FACT">
-    <resourceUri>FACT</resourceUri>
-  </DataSource>
   <DataSource id="HIERARCHY_PARENT_CHILD">
     <resourceUri>HIERARCHY_PARENT_CHILD</resourceUri>
   </DataSource>
-  <DataSource id="Hierarchy_1$$$$HIERARCHY_PARENT_CHILD$$">
-    <resourceUri>HIERARCHY_PARENT_CHILD</resourceUri>
+  <DataSource id="FACT">
+    <resourceUri>FACT</resourceUri>
+  </DataSource>
+  <DataSource id="countries$$$$FACT$$">
+    <resourceUri>FACT</resourceUri>
+  </DataSource>
+  <DataSource id="HIERARCHY">
+    <resourceUri>HIERARCHY</resourceUri>
+  </DataSource>
+  <DataSource id="continents$$$$FACT$$">
+    <resourceUri>FACT</resourceUri>
+  </DataSource>
+  <DataSource id="continents$$$$HIERARCHY$$">
+    <resourceUri>HIERARCHY</resourceUri>
   </DataSource>
 </dataSources>
 <calculationViews>
-  <calculationView xsi:type="Calculation:ProjectionView" id="Fact">
-    <viewAttributes>
-      <viewAttribute id="CITY_AMOUNT"/>
-    
-      <viewAttribute id="CITY_CODE"/></viewAttributes>
-    <calculatedViewAttributes/>
-    <input node="FACT"/>
-  </calculationView>
   <calculationView xsi:type="Calculation:ProjectionView" id="Hier">
     <viewAttributes>
       <viewAttribute id="CHILD"/>
@@ -31,159 +32,145 @@
     <calculatedViewAttributes/>
     <input node="HIERARCHY_PARENT_CHILD"/>
   </calculationView>
-  <calculationView xsi:type="Calculation:HierarchyView" id="Hierarchy_1" function="HIERARCHY">
+  <calculationView xsi:type="Calculation:JoinView" id="add_hierarchy" cardinality="CN_N" joinType="inner">
     <viewAttributes>
-      <viewAttribute datatype="BIGINT" id="HIERARCHY_RANK"/>
-      <viewAttribute datatype="BIGINT" id="HIERARCHY_TREE_SIZE"/>
-      <viewAttribute datatype="BIGINT" id="HIERARCHY_PARENT_RANK"/>
-      <viewAttribute datatype="INTEGER" id="HIERARCHY_LEVEL"/>
-      <viewAttribute datatype="TINYINT" id="HIERARCHY_IS_CYCLE"/>
-      <viewAttribute datatype="TINYINT" id="HIERARCHY_IS_ORPHAN"/>
-      <viewAttribute datatype="NVARCHAR" length="100" id="PARENT_ID"/>
-      <viewAttribute datatype="NVARCHAR" length="100" id="NODE_ID"/>
-    </viewAttributes>
-    <calculatedViewAttributes/>
-    <input node="Hierarchy_1$$$$HIERARCHY_PARENT_CHILD$$">
-      <mapping xsi:type="Calculation:AttributeMapping" target="PARENT_ID" source="PARENT"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="NODE_ID" source="CHILD"/>
-    </input>
-    <hierarchyParameterization>
-      <startWhere></startWhere>
-    </hierarchyParameterization>
-  </calculationView>
-  <calculationView xsi:type="Calculation:JoinView" id="Join_1_1" cardinality="CN_N" joinType="leftOuter" multiJoinNode="Join_1" multiJoinCentralTable="Fact" multiJoinOrder="Outside In">
-    <viewAttributes>
-      <viewAttribute id="CHILD"/>
       <viewAttribute id="PARENT"/>
-      <viewAttribute id="HIERARCHY_RANK" aggregationType="sum"/>
-      <viewAttribute id="HIERARCHY_TREE_SIZE" aggregationType="sum"/>
-      <viewAttribute id="HIERARCHY_PARENT_RANK" aggregationType="sum"/>
-      <viewAttribute id="HIERARCHY_LEVEL" aggregationType="sum"/>
-      <viewAttribute id="HIERARCHY_IS_CYCLE" aggregationType="sum"/>
-      <viewAttribute id="HIERARCHY_IS_ORPHAN" aggregationType="sum"/>
-      <viewAttribute id="PARENT_ID"/>
-      <viewAttribute id="NODE_ID"/>
+      <viewAttribute id="LOCATION_CODE"/>
+      <viewAttribute id="AMOUNT" aggregationType="sum"/>
+      <viewAttribute hidden="true" id="JOIN$CHILD$LOCATION_CODE"/>
     </viewAttributes>
     <calculatedViewAttributes/>
     <input node="Hier">
-      <mapping xsi:type="Calculation:AttributeMapping" target="CHILD" source="CHILD"/>
       <mapping xsi:type="Calculation:AttributeMapping" target="PARENT" source="PARENT"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$CHILD$LOCATION_CODE" source="CHILD"/>
     </input>
-    <input node="Hierarchy_1">
-      <mapping xsi:type="Calculation:AttributeMapping" target="HIERARCHY_RANK" source="HIERARCHY_RANK"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="HIERARCHY_TREE_SIZE" source="HIERARCHY_TREE_SIZE"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="HIERARCHY_PARENT_RANK" source="HIERARCHY_PARENT_RANK"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="HIERARCHY_LEVEL" source="HIERARCHY_LEVEL"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="HIERARCHY_IS_CYCLE" source="HIERARCHY_IS_CYCLE"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="HIERARCHY_IS_ORPHAN" source="HIERARCHY_IS_ORPHAN"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="PARENT_ID" source="PARENT_ID"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="NODE_ID" source="NODE_ID"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="CHILD" source="NODE_ID"/>
+    <input node="fact_union">
+      <mapping xsi:type="Calculation:AttributeMapping" target="LOCATION_CODE" source="LOCATION_CODE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="AMOUNT" source="AMOUNT"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$CHILD$LOCATION_CODE" source="LOCATION_CODE"/>
     </input>
-    <joinAttribute name="CHILD"/>
+    <joinAttribute name="JOIN$CHILD$LOCATION_CODE"/>
   </calculationView>
-  <calculationView xsi:type="Calculation:JoinView" id="Join_1_2" cardinality="CN_N" joinType="rightOuter" multiJoinNode="Join_1" multiJoinCentralTable="Fact" multiJoinOrder="Outside In">
+  <calculationView xsi:type="Calculation:UnionView" id="fact_union">
+    <viewAttributes>
+      <viewAttribute id="LOCATION_CODE"/>
+      <viewAttribute id="AMOUNT" aggregationType="sum"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <input node="fact_cities">
+      <mapping xsi:type="Calculation:AttributeMapping" target="LOCATION_CODE" source="CITY_CODE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="AMOUNT" source="CITY_AMOUNT"/>
+    </input>
+    <input node="fact_countries">
+      <mapping xsi:type="Calculation:AttributeMapping" target="LOCATION_CODE" source="COUNTRY_CODE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="AMOUNT" source="CC_AMOUNT"/>
+    </input>
+    <input node="fact_continents">
+      <mapping xsi:type="Calculation:AttributeMapping" target="LOCATION_CODE" source="CONTINENT_CODE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="AMOUNT" source="CC_AMOUNT"/>
+    </input>
+  </calculationView>
+  <calculationView xsi:type="Calculation:AggregationView" id="fact_cities">
     <viewAttributes>
       <viewAttribute id="CITY_AMOUNT" aggregationType="sum"/>
       <viewAttribute id="CITY_CODE"/>
-      <viewAttribute id="CHILD"/>
-      <viewAttribute id="PARENT"/>
-      <viewAttribute id="HIERARCHY_RANK" aggregationType="sum"/>
-      <viewAttribute id="HIERARCHY_TREE_SIZE" aggregationType="sum"/>
-      <viewAttribute id="HIERARCHY_PARENT_RANK" aggregationType="sum"/>
-      <viewAttribute id="HIERARCHY_LEVEL" aggregationType="sum"/>
-      <viewAttribute id="HIERARCHY_IS_CYCLE" aggregationType="sum"/>
-      <viewAttribute id="HIERARCHY_IS_ORPHAN" aggregationType="sum"/>
-      <viewAttribute id="PARENT_ID"/>
-      <viewAttribute id="NODE_ID"/>
     </viewAttributes>
     <calculatedViewAttributes/>
-    <input node="Fact">
+    <restrictedViewAttributes/>
+    <input node="FACT"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:JoinView" id="countries" cardinality="CN_N" joinType="rightOuter">
+    <viewAttributes>
+      <viewAttribute id="COUNTRY_CODE" aggregationType="count"/>
+      <viewAttribute id="CITY_AMOUNT" aggregationType="sum"/>
+      <viewAttribute id="CITY_VALUE" aggregationType="sum"/>
+      <viewAttribute hidden="true" id="JOIN$CITY_CODE$CITY_CODE"/>
+    </viewAttributes>
+    <calculatedViewAttributes>
+      <calculatedViewAttribute id="CC_AMOUNT" datatype="DECIMAL" length="19" scale="2" expressionLanguage="SQL">
+        <formula>-&quot;CITY_AMOUNT&quot;+IFNULL(&quot;CITY_AMOUNT&quot;/2, 0)</formula>
+      </calculatedViewAttribute>
+    </calculatedViewAttributes>
+    <input node="countries$$$$FACT$$">
       <mapping xsi:type="Calculation:AttributeMapping" target="CITY_AMOUNT" source="CITY_AMOUNT"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="CITY_CODE" source="CITY_CODE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$CITY_CODE$CITY_CODE" source="CITY_CODE"/>
     </input>
-    <input node="Join_1_1">
-      <mapping xsi:type="Calculation:AttributeMapping" target="CHILD" source="CHILD"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="PARENT" source="PARENT"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="HIERARCHY_RANK" source="HIERARCHY_RANK"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="HIERARCHY_TREE_SIZE" source="HIERARCHY_TREE_SIZE"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="HIERARCHY_PARENT_RANK" source="HIERARCHY_PARENT_RANK"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="HIERARCHY_LEVEL" source="HIERARCHY_LEVEL"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="HIERARCHY_IS_CYCLE" source="HIERARCHY_IS_CYCLE"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="HIERARCHY_IS_ORPHAN" source="HIERARCHY_IS_ORPHAN"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="PARENT_ID" source="PARENT_ID"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="NODE_ID" source="NODE_ID"/>
-      <mapping xsi:type="Calculation:AttributeMapping" target="CITY_CODE" source="CHILD"/>
+    <input node="HIERARCHY">
+      <mapping xsi:type="Calculation:AttributeMapping" target="COUNTRY_CODE" source="COUNTRY_CODE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="CITY_VALUE" source="CITY_VALUE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$CITY_CODE$CITY_CODE" source="CITY_CODE"/>
     </input>
-    <joinAttribute name="CITY_CODE"/>
+    <joinAttribute name="JOIN$CITY_CODE$CITY_CODE"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:AggregationView" id="fact_countries">
+    <viewAttributes>
+      <viewAttribute id="COUNTRY_CODE"/>
+      <viewAttribute id="CC_AMOUNT" aggregationType="sum"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <restrictedViewAttributes/>
+    <input node="countries"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:JoinView" id="continents" cardinality="CN_N" joinType="rightOuter">
+    <viewAttributes>
+      <viewAttribute id="CITY_AMOUNT" aggregationType="sum"/>
+      <viewAttribute id="CONTINENT_CODE"/>
+      <viewAttribute hidden="true" id="JOIN$CITY_CODE$CITY_CODE"/>
+    </viewAttributes>
+    <calculatedViewAttributes>
+      <calculatedViewAttribute id="CC_AMOUNT" datatype="DECIMAL" length="19" scale="2" expressionLanguage="SQL">
+        <formula>-&quot;CITY_AMOUNT&quot;/2+IFNULL(&quot;CITY_AMOUNT&quot;/3, 0)</formula>
+      </calculatedViewAttribute>
+    </calculatedViewAttributes>
+    <input node="continents$$$$FACT$$">
+      <mapping xsi:type="Calculation:AttributeMapping" target="CITY_AMOUNT" source="CITY_AMOUNT"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$CITY_CODE$CITY_CODE" source="CITY_CODE"/>
+    </input>
+    <input node="continents$$$$HIERARCHY$$">
+      <mapping xsi:type="Calculation:AttributeMapping" target="CONTINENT_CODE" source="CONTINENT_CODE"/>
+      <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$CITY_CODE$CITY_CODE" source="CITY_CODE"/>
+    </input>
+    <joinAttribute name="JOIN$CITY_CODE$CITY_CODE"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:AggregationView" id="fact_continents">
+    <viewAttributes>
+      <viewAttribute id="CONTINENT_CODE"/>
+      <viewAttribute id="CC_AMOUNT" aggregationType="sum"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <restrictedViewAttributes/>
+    <input node="continents"/>
   </calculationView>
 </calculationViews>
-<logicalModel id="Join_1_2">
+<logicalModel id="add_hierarchy">
   <attributes>
-    <attribute id="CITY_CODE" order="2" displayAttribute="false" attributeHierarchyActive="false">
-      <descriptions defaultDescription="CITY_CODE"/>
-      <keyMapping columnObjectName="Join_1_2" columnName="CITY_CODE"/>
-    </attribute>
-    <attribute id="CHILD" order="3" displayAttribute="false" attributeHierarchyActive="false">
-      <descriptions defaultDescription="CHILD"/>
-      <keyMapping columnObjectName="Join_1_2" columnName="CHILD"/>
-    </attribute>
-    <attribute id="PARENT" order="4" displayAttribute="false" attributeHierarchyActive="false">
+    <attribute id="PARENT" order="1" displayAttribute="false" attributeHierarchyActive="false">
       <descriptions defaultDescription="PARENT"/>
-      <keyMapping columnObjectName="Join_1_2" columnName="PARENT"/>
+      <keyMapping columnObjectName="add_hierarchy" columnName="PARENT"/>
     </attribute>
-  
-    <attribute id="HIERARCHY_RANK" order="5" displayAttribute="false" attributeHierarchyActive="false">
-      <descriptions defaultDescription="HIERARCHY_RANK"/>
-      <keyMapping columnObjectName="Join_1_2" columnName="HIERARCHY_RANK"/>
-    </attribute>
-    <attribute id="HIERARCHY_TREE_SIZE" order="6" displayAttribute="false" attributeHierarchyActive="false">
-      <descriptions defaultDescription="HIERARCHY_TREE_SIZE"/>
-      <keyMapping columnObjectName="Join_1_2" columnName="HIERARCHY_TREE_SIZE"/>
-    </attribute>
-    <attribute id="HIERARCHY_PARENT_RANK" order="7" displayAttribute="false" attributeHierarchyActive="false">
-      <descriptions defaultDescription="HIERARCHY_PARENT_RANK"/>
-      <keyMapping columnObjectName="Join_1_2" columnName="HIERARCHY_PARENT_RANK"/>
-    </attribute>
-    <attribute id="HIERARCHY_LEVEL" order="8" displayAttribute="false" attributeHierarchyActive="false">
-      <descriptions defaultDescription="HIERARCHY_LEVEL"/>
-      <keyMapping columnObjectName="Join_1_2" columnName="HIERARCHY_LEVEL"/>
-    </attribute>
-    <attribute id="HIERARCHY_IS_CYCLE" order="9" displayAttribute="false" attributeHierarchyActive="false">
-      <descriptions defaultDescription="HIERARCHY_IS_CYCLE"/>
-      <keyMapping columnObjectName="Join_1_2" columnName="HIERARCHY_IS_CYCLE"/>
-    </attribute>
-    <attribute id="HIERARCHY_IS_ORPHAN" order="10" displayAttribute="false" attributeHierarchyActive="false">
-      <descriptions defaultDescription="HIERARCHY_IS_ORPHAN"/>
-      <keyMapping columnObjectName="Join_1_2" columnName="HIERARCHY_IS_ORPHAN"/>
-    </attribute>
-    <attribute id="PARENT_ID" order="11" displayAttribute="false" attributeHierarchyActive="false">
-      <descriptions defaultDescription="PARENT_ID"/>
-      <keyMapping columnObjectName="Join_1_2" columnName="PARENT_ID"/>
-    </attribute>
-    <attribute id="NODE_ID" order="12" displayAttribute="false" attributeHierarchyActive="false">
-      <descriptions defaultDescription="NODE_ID"/>
-      <keyMapping columnObjectName="Join_1_2" columnName="NODE_ID"/>
+    <attribute id="LOCATION_CODE" order="2" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="CITY_CODE"/>
+      <keyMapping columnObjectName="add_hierarchy" columnName="LOCATION_CODE"/>
     </attribute>
   </attributes>
   <calculatedAttributes/>
   <baseMeasures>
-    <measure id="CITY_AMOUNT" order="1" aggregationType="sum" measureType="simple">
+    <measure id="AMOUNT" order="3" aggregationType="sum" measureType="simple">
       <descriptions defaultDescription="CITY_AMOUNT"/>
-      <measureMapping columnObjectName="Join_1_2" columnName="CITY_AMOUNT"/>
+      <measureMapping columnObjectName="add_hierarchy" columnName="AMOUNT"/>
     </measure>
   </baseMeasures>
   <calculatedMeasures/>
   <restrictedMeasures/>
   <localDimensions>
     <localDimension id="PARENT_1">
-      <attributeRef xsi:type="DataFoundation:Attribute">CHILD</attributeRef>
+      <attributeRef xsi:type="DataFoundation:Attribute">LOCATION_CODE</attributeRef>
       <attributeRef xsi:type="DataFoundation:Attribute">PARENT</attributeRef>
       <hierarchies>
-        <hierarchy xsi:type="Dimension:ParentChildHierarchy" id="PARENT_1" aggregateAllNodes="false" orphanedNodesHandling="ROOT_NODES" rootNodeVisibility="ADD_ROOT_NODE_IF_DEFINED" cacheEnabled="true" cycleHandling="BREAKUP" emptyValueIsNull="true">
+        <hierarchy xsi:type="Dimension:ParentChildHierarchy" id="PARENT_1" aggregateAllNodes="true" orphanedNodesHandling="ROOT_NODES" rootNodeVisibility="ADD_ROOT_NODE_IF_DEFINED" cacheEnabled="true" cycleHandling="BREAKUP" emptyValueIsNull="true">
           <descriptions defaultDescription=""/>
           <unassignedMemberProperties mode="FALSE"/>
-          <attributeParentPair attribute="CHILD" parentAttribute="PARENT">
+          <attributeParentPair attribute="LOCATION_CODE" parentAttribute="PARENT">
             <rootNode>
               <value>ROOT</value>
             </rootNode>
@@ -198,34 +185,61 @@
     <shape expanded="true" modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
       <upperLeftCorner x="40" y="85"/>
     </shape>
+    <shape expanded="true" modelObjectName="Hier" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="344" y="320"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
   
-    <shape expanded="true" modelObjectName="Join_1" modelObjectNameSpace="CalculationView">
+    <shape expanded="true" modelObjectName="add_hierarchy" modelObjectNameSpace="CalculationView">
       <upperLeftCorner x="100" y="197"/>
       <rectangleSize height="30" width="160"/>
     </shape>
-    <shape modelObjectName="Fact" modelObjectNameSpace="Join_1" modelObjectType="JoinNodeInput" multiJoinViewNodeName="Join_1">
-      <upperLeftCorner x="20" y="30"/>
-      <rectangleSize width="100"/>
-    </shape>
-    <shape modelObjectName="Hier" modelObjectNameSpace="Join_1" modelObjectType="JoinNodeInput" multiJoinViewNodeName="Join_1">
+    <shape modelObjectName="Hier" modelObjectNameSpace="add_hierarchy" modelObjectType="JoinNodeInput">
       <upperLeftCorner x="320" y="30"/>
       <rectangleSize width="100"/>
     </shape>
-    <shape modelObjectName="Hierarchy_1" modelObjectNameSpace="Join_1" modelObjectType="JoinNodeInput" multiJoinViewNodeName="Join_1">
+    <shape modelObjectName="fact_union" modelObjectNameSpace="add_hierarchy" modelObjectType="JoinNodeInput">
       <upperLeftCorner x="620" y="30"/>
       <rectangleSize width="250"/>
     </shape>
-    <shape expanded="true" modelObjectName="Fact" modelObjectNameSpace="CalculationView">
-      <upperLeftCorner x="-68" y="357"/>
+    <shape expanded="true" modelObjectName="fact_union" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="-55" y="357"/>
       <rectangleSize height="30" width="160"/>
     </shape>
-    <shape expanded="true" modelObjectName="Hier" modelObjectNameSpace="CalculationView">
-      <upperLeftCorner x="257" y="367"/>
+    <shape expanded="true" modelObjectName="fact_cities" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="-215" y="534"/>
       <rectangleSize height="30" width="160"/>
     </shape>
-  
-    <shape expanded="true" modelObjectName="Hierarchy_1" modelObjectNameSpace="CalculationView">
-      <upperLeftCorner x="518" y="359"/>
+    <shape expanded="true" modelObjectName="countries" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="76" y="633"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape modelObjectName="FACT" modelObjectNameSpace="countries" modelObjectType="JoinNodeInput">
+      <upperLeftCorner x="106" y="45"/>
+      <rectangleSize width="164.8369140625"/>
+    </shape>
+    <shape modelObjectName="HIERARCHY" modelObjectNameSpace="countries" modelObjectType="JoinNodeInput">
+      <upperLeftCorner x="320" y="30"/>
+      <rectangleSize width="188.0615234375"/>
+    </shape>
+    <shape expanded="true" modelObjectName="fact_countries" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="66" y="530"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape expanded="true" modelObjectName="continents" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="334" y="633"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape modelObjectName="FACT" modelObjectNameSpace="continents" modelObjectType="JoinNodeInput">
+      <upperLeftCorner x="20" y="30"/>
+      <rectangleSize width="164.8369140625"/>
+    </shape>
+    <shape modelObjectName="HIERARCHY" modelObjectNameSpace="continents" modelObjectType="JoinNodeInput">
+      <upperLeftCorner x="320" y="30"/>
+      <rectangleSize width="188.0615234375"/>
+    </shape>
+    <shape expanded="true" modelObjectName="fact_continents" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="334" y="534"/>
       <rectangleSize height="30" width="160"/>
     </shape>
   </shapes>
