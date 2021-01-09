@@ -65,7 +65,7 @@
   </attributes>
   <calculatedAttributes/>
   <baseMeasures>
-    <measure id="CITY_AMOUNT" order="1" aggregationType="sum" measureType="simple">
+    <measure id="CITY_AMOUNT" order="1" aggregationType="min" measureType="simple">
       <descriptions defaultDescription="CITY_AMOUNT"/>
       <measureMapping columnObjectName="Join_1" columnName="CITY_AMOUNT"/>
     </measure>

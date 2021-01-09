@@ -57,27 +57,45 @@
       <viewAttribute id="AMOUNT" aggregationType="sum"/>
     </viewAttributes>
     <calculatedViewAttributes/>
-    <input node="fact_cities">
+    <input node="fact_cities" emptyUnionBehavior="NO_ROW">
       <mapping xsi:type="Calculation:AttributeMapping" target="LOCATION_CODE" source="CITY_CODE"/>
       <mapping xsi:type="Calculation:AttributeMapping" target="AMOUNT" source="CITY_AMOUNT"/>
     </input>
-    <input node="fact_countries">
+    <input node="fact_countries" emptyUnionBehavior="NO_ROW">
       <mapping xsi:type="Calculation:AttributeMapping" target="LOCATION_CODE" source="COUNTRY_CODE"/>
       <mapping xsi:type="Calculation:AttributeMapping" target="AMOUNT" source="CC_AMOUNT"/>
     </input>
-    <input node="fact_continents">
+    <input node="fact_continents" emptyUnionBehavior="NO_ROW">
       <mapping xsi:type="Calculation:AttributeMapping" target="LOCATION_CODE" source="CONTINENT_CODE"/>
       <mapping xsi:type="Calculation:AttributeMapping" target="AMOUNT" source="CC_AMOUNT"/>
     </input>
   </calculationView>
   <calculationView xsi:type="Calculation:AggregationView" id="fact_cities">
     <viewAttributes>
-      <viewAttribute id="CITY_AMOUNT" aggregationType="sum"/>
       <viewAttribute id="CITY_CODE"/>
-    </viewAttributes>
+    
+      <viewAttribute id="CITY_AMOUNT" aggregationType="sum"/></viewAttributes>
     <calculatedViewAttributes/>
     <restrictedViewAttributes/>
     <input node="FACT"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:AggregationView" id="fact_countries">
+    <viewAttributes>
+      <viewAttribute id="COUNTRY_CODE"/>
+      <viewAttribute id="CC_AMOUNT" aggregationType="sum"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <restrictedViewAttributes/>
+    <input node="countries"/>
+  </calculationView>
+  <calculationView xsi:type="Calculation:AggregationView" id="fact_continents">
+    <viewAttributes>
+      <viewAttribute id="CONTINENT_CODE"/>
+      <viewAttribute id="CC_AMOUNT" aggregationType="sum"/>
+    </viewAttributes>
+    <calculatedViewAttributes/>
+    <restrictedViewAttributes/>
+    <input node="continents"/>
   </calculationView>
   <calculationView xsi:type="Calculation:JoinView" id="countries" cardinality="CN_N" joinType="rightOuter">
     <viewAttributes>
@@ -102,15 +120,6 @@
     </input>
     <joinAttribute name="JOIN$CITY_CODE$CITY_CODE"/>
   </calculationView>
-  <calculationView xsi:type="Calculation:AggregationView" id="fact_countries">
-    <viewAttributes>
-      <viewAttribute id="COUNTRY_CODE"/>
-      <viewAttribute id="CC_AMOUNT" aggregationType="sum"/>
-    </viewAttributes>
-    <calculatedViewAttributes/>
-    <restrictedViewAttributes/>
-    <input node="countries"/>
-  </calculationView>
   <calculationView xsi:type="Calculation:JoinView" id="continents" cardinality="CN_N" joinType="rightOuter">
     <viewAttributes>
       <viewAttribute id="CITY_AMOUNT" aggregationType="sum"/>
@@ -132,15 +141,6 @@
     </input>
     <joinAttribute name="JOIN$CITY_CODE$CITY_CODE"/>
   </calculationView>
-  <calculationView xsi:type="Calculation:AggregationView" id="fact_continents">
-    <viewAttributes>
-      <viewAttribute id="CONTINENT_CODE"/>
-      <viewAttribute id="CC_AMOUNT" aggregationType="sum"/>
-    </viewAttributes>
-    <calculatedViewAttributes/>
-    <restrictedViewAttributes/>
-    <input node="continents"/>
-  </calculationView>
 </calculationViews>
 <logicalModel id="add_hierarchy">
   <attributes>
@@ -152,22 +152,26 @@
       <descriptions defaultDescription="CITY_CODE"/>
       <keyMapping columnObjectName="add_hierarchy" columnName="LOCATION_CODE"/>
     </attribute>
+  
+    <attribute id="AMOUNT" order="3" semanticType="empty" displayAttribute="false" attributeHierarchyActive="false">
+      <descriptions defaultDescription="CITY_AMOUNT"/>
+      <keyMapping columnObjectName="add_hierarchy" columnName="AMOUNT"/>
+    </attribute>
   </attributes>
   <calculatedAttributes/>
-  <baseMeasures>
-    <measure id="AMOUNT" order="3" aggregationType="sum" measureType="simple">
-      <descriptions defaultDescription="CITY_AMOUNT"/>
-      <measureMapping columnObjectName="add_hierarchy" columnName="AMOUNT"/>
-    </measure>
-  </baseMeasures>
-  <calculatedMeasures/>
+  <baseMeasures/>
+  <calculatedMeasures>
+    <measure id="CC_DUMMY_MEASURE" order="4" aggregationType="sum" measureType="simple" datatype="INTEGER" expressionLanguage="SQL">
+      <formula>1</formula>
+      </measure>
+  </calculatedMeasures>
   <restrictedMeasures/>
   <localDimensions>
     <localDimension id="PARENT_1">
       <attributeRef xsi:type="DataFoundation:Attribute">LOCATION_CODE</attributeRef>
       <attributeRef xsi:type="DataFoundation:Attribute">PARENT</attributeRef>
       <hierarchies>
-        <hierarchy xsi:type="Dimension:ParentChildHierarchy" id="PARENT_1" aggregateAllNodes="true" orphanedNodesHandling="ROOT_NODES" rootNodeVisibility="ADD_ROOT_NODE_IF_DEFINED" cacheEnabled="true" cycleHandling="BREAKUP" emptyValueIsNull="true">
+        <hierarchy xsi:type="Dimension:ParentChildHierarchy" id="PARENT_1" aggregateAllNodes="false" orphanedNodesHandling="ROOT_NODES" rootNodeVisibility="ADD_ROOT_NODE_IF_DEFINED" cacheEnabled="true" cycleHandling="BREAKUP" emptyValueIsNull="true">
           <descriptions defaultDescription=""/>
           <unassignedMemberProperties mode="FALSE"/>
           <attributeParentPair attribute="LOCATION_CODE" parentAttribute="PARENT">
@@ -175,6 +179,7 @@
               <value>ROOT</value>
             </rootNode>
           </attributeParentPair>
+          <edgeAttribute attribute="AMOUNT"/>
         </hierarchy>
       </hierarchies>
     </localDimension>
@@ -183,15 +188,17 @@
 <layout>
   <shapes>
     <shape expanded="true" modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
-      <upperLeftCorner x="40" y="85"/>
+      <upperLeftCorner x="456.19312808233786" y="112"/>
+    
+      <rectangleSize width="160"/>
     </shape>
     <shape expanded="true" modelObjectName="Hier" modelObjectNameSpace="CalculationView">
-      <upperLeftCorner x="344" y="320"/>
+      <upperLeftCorner x="504.5547237528757" y="376.9999988079071"/>
       <rectangleSize height="30" width="160"/>
     </shape>
   
     <shape expanded="true" modelObjectName="add_hierarchy" modelObjectNameSpace="CalculationView">
-      <upperLeftCorner x="100" y="197"/>
+      <upperLeftCorner x="456.19312808233786" y="217"/>
       <rectangleSize height="30" width="160"/>
     </shape>
     <shape modelObjectName="Hier" modelObjectNameSpace="add_hierarchy" modelObjectType="JoinNodeInput">
@@ -203,45 +210,45 @@
       <rectangleSize width="250"/>
     </shape>
     <shape expanded="true" modelObjectName="fact_union" modelObjectNameSpace="CalculationView">
-      <upperLeftCorner x="-55" y="357"/>
+      <upperLeftCorner x="132.00000000000014" y="377"/>
       <rectangleSize height="30" width="160"/>
     </shape>
     <shape expanded="true" modelObjectName="fact_cities" modelObjectNameSpace="CalculationView">
-      <upperLeftCorner x="-215" y="534"/>
+      <upperLeftCorner x="92.00000000000009" y="551.9999976158142"/>
       <rectangleSize height="30" width="160"/>
     </shape>
+    <shape expanded="true" modelObjectName="fact_countries" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="302" y="551.9999976158142"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+    <shape expanded="true" modelObjectName="fact_continents" modelObjectNameSpace="CalculationView">
+      <upperLeftCorner x="512.0000000000001" y="551.9999976158142"/>
+      <rectangleSize height="30" width="160"/>
+    </shape>
+  
     <shape expanded="true" modelObjectName="countries" modelObjectNameSpace="CalculationView">
-      <upperLeftCorner x="76" y="633"/>
+      <upperLeftCorner x="286.554273592556" y="676.9999964237213"/>
       <rectangleSize height="30" width="160"/>
     </shape>
     <shape modelObjectName="FACT" modelObjectNameSpace="countries" modelObjectType="JoinNodeInput">
       <upperLeftCorner x="106" y="45"/>
-      <rectangleSize width="164.8369140625"/>
+      <rectangleSize width="164"/>
     </shape>
     <shape modelObjectName="HIERARCHY" modelObjectNameSpace="countries" modelObjectType="JoinNodeInput">
       <upperLeftCorner x="320" y="30"/>
-      <rectangleSize width="188.0615234375"/>
-    </shape>
-    <shape expanded="true" modelObjectName="fact_countries" modelObjectNameSpace="CalculationView">
-      <upperLeftCorner x="66" y="530"/>
-      <rectangleSize height="30" width="160"/>
+      <rectangleSize width="188"/>
     </shape>
     <shape expanded="true" modelObjectName="continents" modelObjectNameSpace="CalculationView">
-      <upperLeftCorner x="334" y="633"/>
+      <upperLeftCorner x="496.55427359255606" y="676.9999964237213"/>
       <rectangleSize height="30" width="160"/>
     </shape>
     <shape modelObjectName="FACT" modelObjectNameSpace="continents" modelObjectType="JoinNodeInput">
       <upperLeftCorner x="20" y="30"/>
-      <rectangleSize width="164.8369140625"/>
+      <rectangleSize width="164"/>
     </shape>
     <shape modelObjectName="HIERARCHY" modelObjectNameSpace="continents" modelObjectType="JoinNodeInput">
       <upperLeftCorner x="320" y="30"/>
-      <rectangleSize width="188.0615234375"/>
-    </shape>
-    <shape expanded="true" modelObjectName="fact_continents" modelObjectNameSpace="CalculationView">
-      <upperLeftCorner x="334" y="534"/>
-      <rectangleSize height="30" width="160"/>
-    </shape>
-  </shapes>
+      <rectangleSize width="188"/>
+    </shape></shapes>
 </layout>
 </Calculation:scenario>
